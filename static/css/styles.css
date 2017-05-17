@@ -1,0 +1,26 @@
+.form {
+    float: right;
+    padding: 10px;
+}
+
+.form .form-control {
+    display: inline;
+    height: auto;
+    min-height: 45px;
+}
+
+.navbar-form {
+	display: inline;
+}
+
+.music-icons {
+	float: right;
+	display: inline;
+}
+
+#inputFile {
+    display: inline;
+    width: 100%;
+}
+
+
