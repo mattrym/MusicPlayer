@@ -1,7 +1,7 @@
 import os, os.path
 import subprocess
 
-class RadioPlayer():
+class MusicPlayer():
     stations = [
         'http://radio.nolife-radio.com:9000/stream',
         'http://proxy.tuned.svada.net:8000/radiojazzfm.mp3',
@@ -16,6 +16,7 @@ class RadioPlayer():
             'volume': ['mpc', 'volume', ],
             'clear': ['mpc', 'clear' ],
         }
+    volume_interval = 5
 
     def __mpc(self, cmd):
         print(cmd)
@@ -29,7 +30,7 @@ class RadioPlayer():
     def __init__(self):
         self.clear()
         
-        stations = list(enumerate(RadioPlayer.stations, start = 1))
+        stations = list(enumerate(MusicPlayer.stations, start = 1))
         for station_no, station_url in stations:
             cmd = list(self.commands['add'])
             cmd.append(station_url)
@@ -39,7 +40,7 @@ class RadioPlayer():
         self.curr_station = None
 
     def play(self, station_no):
-        self.stop()
+        self.pause()
 
         cmd = list(self.commands['play'])
         cmd.append(str(station_no))
@@ -50,7 +51,7 @@ class RadioPlayer():
 
     def stop(self):
         cmd = list(self.commands['stop'])
-        self.mpc(cmd)
+        self.__mpc(cmd)
         
         self.paused = True
         self.curr_station = None

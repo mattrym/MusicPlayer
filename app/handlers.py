@@ -9,9 +9,10 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class MainHandler(BaseHandler):
     def get(self):
-        print(str(self.mplayer.tracks))
         self.render('main-template.html',
-                tracklist = self.mplayer.tracks)
+                tracklist = list(
+                enumerate(self.mplayer.stations, start = 1)
+            ))
 
 class PauseHandler(BaseHandler):
     def get(self):

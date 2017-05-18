@@ -35,7 +35,7 @@ class FMApplication(tornado.web.Application):
                 'debug': True
                 }
 
-        gpiocontroller.init(self.mplayer)
+        self.gpiocontroller.init(self.mplayer)
         tornado.web.Application.__init__(self, handlers, **settings)
 
 def make_application():
