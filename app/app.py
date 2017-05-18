@@ -8,13 +8,17 @@ from .handlers import (
         VolumeHandler,
         )
 from .player import MusicPlayer
+from .gpio import GPIOController
 from . import modules
-
 
 class FMApplication(tornado.web.Application):
     def __init__(self):
         self.mplayer = MusicPlayer()
-        init_dict = {'mplayer': self.mplayer}
+        self.gpiocontroller = GPIOController()
+        init_dict = {
+                'mplayer': self.mplayer,
+                'gpiocontroller': self.gpiocontroller,
+                }
         top_dir = os.path.dirname(os.path.dirname(__file__))
 
         handlers = [
@@ -31,6 +35,7 @@ class FMApplication(tornado.web.Application):
                 'debug': True
                 }
 
+        gpiocontroller.init(self.mplayer)
         tornado.web.Application.__init__(self, handlers, **settings)
 
 def make_application():

@@ -1,9 +1,13 @@
-import subprocess
 import os, os.path
-from pygame import mixer
-from pygame.mixer import music
+import subprocess
 
-class MusicPlayer():
+class RadioPlayer():
+    stations = [
+        'http://radio.nolife-radio.com:9000/stream',
+        'http://proxy.tuned.svada.net:8000/radiojazzfm.mp3',
+        'http://148.163.81.10:8006/stream',
+        'http://live.slovakradio.sk:8000/Devin_256.mp3',
+        ]
     commands = {
             'add': ['mpc', 'add', ],
             'play': ['mpc', 'play', ],
@@ -11,8 +15,7 @@ class MusicPlayer():
             'pause': ['mpc', 'pause', ],
             'volume': ['mpc', 'volume', ],
             'clear': ['mpc', 'clear' ],
-            }
-    volume_interval = 2
+        }
 
     def __mpc(self, cmd):
         print(cmd)
@@ -26,30 +29,42 @@ class MusicPlayer():
     def __init__(self):
         self.clear()
         
-        self.tracks = list(enumerate([filename 
-                for filename in os.listdir('/var/lib/mpd/music')
-                if os.path.splitext(filename)[1] == '.mp3']))
-        self.tracks.sort(key = lambda entry: entry[1])
-        for track_no, track_name in self.tracks:
+        stations = list(enumerate(RadioPlayer.stations, start = 1))
+        for station_no, station_url in stations:
             cmd = list(self.commands['add'])
-            cmd.append(track_name)
+            cmd.append(station_url)
             self.__mpc(cmd)
 
         self.paused = False
+        self.curr_station = None
 
-    def play(self, track_no):
+    def play(self, station_no):
+        self.stop()
+
         cmd = list(self.commands['play'])
-        cmd.append(str(track_no))
+        cmd.append(str(station_no))
         self.__mpc(cmd)
-    
+
+        self.paused = False
+        self.curr_station = station_no
+
+    def stop(self):
+        cmd = list(self.commands['stop'])
+        self.mpc(cmd)
+        
+        self.paused = True
+        self.curr_station = None
+
     def pause(self):
         cmd = list(self.commands['pause'])
         self.__mpc(cmd)
+
         self.paused = True
 
     def unpause(self):
         cmd = list(self.commands['play'])
         self.__mpc(cmd)
+
         self.paused = False
 
     def volume_up(self):

@@ -3,8 +3,9 @@ import tornado.web
 import tornado.httpclient
 
 class BaseHandler(tornado.web.RequestHandler):
-    def initialize(self, mplayer):
+    def initialize(self, mplayer, gpiocontroller):
         self.mplayer = mplayer
+        self.gpiocontroller = gpiocontroller
 
 class MainHandler(BaseHandler):
     def get(self):
@@ -23,6 +24,7 @@ class PauseHandler(BaseHandler):
 class TrackHandler(BaseHandler):
     def get(self, track_no):
         self.mplayer.play(track_no)
+        self.gpiocontroller.light_led(track_no)
         self.redirect('/')
 
 class VolumeHandler(BaseHandler):
