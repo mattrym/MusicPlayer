@@ -1,4 +1,3 @@
-import requests
 import tornado.web
 import tornado.httpclient
 

@@ -1,16 +1,39 @@
 import RPi.GPIO as GPIO
 
-def left_callback(mplayer):
+GPIO_LEDS = {
+    'RED': 24,
+    'GREEN': 23,
+    'WHITE': 18,
+    'BLUE': 17,
+}
+
+GPIO_BTNS = {
+    'LEFT': 10,
+    'RIGHT': 22,
+    'TOP': 27,
+}
+
+BOUNCE_TIME = 200
+
+def get_left_callback(gpiocontroller, mplayer):
     def callback(channel): 
-        mplayer.volume_down()
+        if GPIO.input(GPIO_BTNS['TOP']):
+            mplayer.volume_down()
+        else:
+            mplayer.prev()
+            gpiocontroller.light_led(mplayer.curr_station)
     return callback
 
-def right_callback(mplayer):
+def get_right_callback(gpiocontroller, mplayer):
     def callback(channel): 
-        mplayer.volume_up()
+        if GPIO.input(GPIO_BTNS['TOP']):
+            mplayer.volume_up()
+        else:
+            mplayer.next()
+            gpiocontroller.light_led(mplayer.curr_station)
     return callback
-	
-def top_callback(mplayer):
+        
+def get_top_callback(gpiocontroller, mplayer):
     def callback(channel):
         if mplayer.curr_station != None:
             if mplayer.paused:
@@ -19,51 +42,33 @@ def top_callback(mplayer):
                 mplayer.pause()
     return callback
 
+GPIO_CALLBACK_FACTORIES = {
+    'LEFT': get_left_callback,
+    'RIGHT': get_right_callback,
+    'TOP': get_top_callback,
+    }
+
 class GPIOController():
-    GPIO_LEDS = {
-        'RED': 5,
-        'GREEN': 6,
-        'WHITE': 13,
-        'BLUE': 19,
-    }
-
-    GPIO_BTNS = {
-        'LEFT': 16,
-        'RIGHT': 20,
-        'TOP': 21,
-    }
-    
-    BOUNCE_TIME = 200
-    
-    # Custom GPIO input callbacks
-	# -----------------------------
-	# Can be redefined for the user
-	# related purpose
-    
-    GPIO_CALLBACKS = {
-        'LEFT': left_callback,
-        'RIGHT': right_callback,
-        'TOP': top_callback,
-        }
-
     def init(self, mplayer):
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(list(self.GPIO_LEDS.values()), GPIO.OUT)
-        GPIO.setup(list(self.GPIO_BTNS.values()), GPIO.IN)
+        GPIO.setup(list(GPIO_LEDS.values()), GPIO.OUT)
+        GPIO.setup(list(GPIO_BTNS.values()), GPIO.IN)
 
         self.mplayer = mplayer
 
-        for key, channel in self.GPIO_BTNS.items():
+        for key, channel in GPIO_BTNS.items():
             GPIO.add_event_detect(channel, GPIO.FALLING,
-                    callback = self.GPIO_CALLBACKS[key](self.mplayer),
-                    bouncetime = self.BOUNCE_TIME)
+                    callback = GPIO_CALLBACK_FACTORIES[key](self, self.mplayer),
+                    bouncetime = BOUNCE_TIME)
+        
+        self.light_led(1)
 
     def clean(self):
         GPIO.cleanup()
 
     def light_led(self, led):
-        led_bcm = list(self.GPIO_LEDS.values())[int(led) - 1]
-        for led_no in list(self.GPIO_LEDS.values()): 
+        led_bcm = list(GPIO_LEDS.values())[int(led) - 1]
+        for led_no in list(GPIO_LEDS.values()): 
             if led_no == led_bcm:
                 GPIO.output(led_no, GPIO.HIGH)
             else:
