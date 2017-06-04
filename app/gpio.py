@@ -3,16 +3,16 @@ import select
 import threading
 
 GPIO_LEDS = {
-    'RED': 5,
-    'GREEN': 6,
-    'WHITE': 13,
-    'BLUE': 19,
+    'RED': 24,
+    'GREEN': 23,
+    'WHITE': 18,
+    'BLUE': 17,
 }
 
 GPIO_BTNS = {
-    'LEFT': 16,
-    'RIGHT': 20,
-    'TOP': 21,
+    'LEFT': 10,
+    'RIGHT': 22,
+    'TOP': 27,
 }
 
 GPIO_SYSFS = '/sys/class/gpio'
